@@ -1,0 +1,10 @@
+[project]
+name = "movie-recommendation-system"
+version = "0.1.0"
+description = "A production-style movie recommendation system built step by step."
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
