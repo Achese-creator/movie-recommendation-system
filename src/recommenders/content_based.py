@@ -28,4 +28,42 @@ def build_tfidf_matrix(
      
 def compute_similarity_matrix(feature_matrix: csr_matrix) -> np.ndarray:
     """Compute pairwise cosine similarity for a feature matrix."""
-    return cosine_similarity(feature_matrix)     
+    return cosine_similarity(feature_matrix)      
+
+
+
+def recommend_movies(
+    title: str,
+    movies_df: pd.DataFrame,
+    similarity_matrix: np.ndarray,
+    top_n: int = 10,
+) -> pd.DataFrame:
+    """Recommend movies similar to a given title."""
+    normalized_title = title.lower()
+
+    matching_movies = movies_df[
+        movies_df["title"].str.lower() == normalized_title
+    ]
+
+    if matching_movies.empty:
+        return pd.DataFrame()
+
+    movie_index = matching_movies.index[0]
+    similarity_scores = list(enumerate(similarity_matrix[movie_index]))
+
+    sorted_scores = sorted(
+        similarity_scores,
+        key=lambda item: item[1],
+        reverse=True,
+    )
+
+    top_scores = sorted_scores[1 : top_n + 1]
+    top_movie_indices = [item[0] for item in top_scores]
+
+    recommendations = movies_df.iloc[top_movie_indices][
+        ["id", "title", "vote_average", "vote_count", "release_date", "runtime"]
+    ].copy()
+
+    recommendations["similarity_score"] = [item[1] for item in top_scores]
+
+    return recommendations
